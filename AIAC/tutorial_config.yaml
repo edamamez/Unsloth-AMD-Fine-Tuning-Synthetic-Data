@@ -1,0 +1,180 @@
+# Logical Reasoning Training Configuration for Synthetic Data Kit
+
+# Global paths configuration
+paths:
+  input: "data/input"           # Source PDFs and text files
+  output:
+    parsed: "data/parsed"       # Extracted text files (.txt)
+    generated: "data/generated" # Generated QA pairs and CoT (.json)
+    curated: "data/curated"     # Quality-filtered data (.json)
+    final: "data/final"         # Training-ready format (.json)
+
+# LLM Provider configuration
+llm:
+  provider: "vllm"
+
+# vLLM server configuration
+vllm:
+  api_base: "http://localhost:8001/v1"
+  port: 8001
+  model: "Unsloth/Llama-3.3-70B-Instruct"
+  max_retries: 3
+  retry_delay: 1.0
+  sleep_time: 0.1   # Small delay between batches to avoid rate limits
+
+# Document processing configuration
+ingest:
+  default_format: "txt"
+  youtube_captions: "auto"
+
+# LLM generation parameters optimized for logical reasoning
+generation:
+  temperature: 0.7   # Balanced creativity for reasoning problems
+  top_p: 0.95
+  
+  # Document processing strategy
+  processing_strategy: "auto"
+  single_call_max_size: 8000
+  
+  # Chunking parameters for large documents
+  chunk_size: 4000   # Good size for logical reasoning content
+  overlap: 300       # Maintain context between chunks
+  
+  # Content generation targets
+  num_pairs: 15      # QA pairs per document/chunk
+  num_cot_examples: 10  # Chain of Thought examples per document/chunk
+  
+  # Model parameters
+  max_tokens: 4096   # Allow detailed explanations
+  batch_size: 16     # Reasonable batch size for reasoning tasks
+  
+  # Quality settings
+  enable_deduplication: true
+  similarity_threshold: 0.85  # Remove very similar problems
+
+# Content curation parameters - stricter for reasoning quality
+curate:
+  threshold: 7.5     # Higher threshold for logical reasoning quality
+  batch_size: 5      # Smaller batches for more careful evaluation
+  inference_batch: 5
+  temperature: 0.1   # Low temperature for consistent quality ratings
+
+# Format conversion parameters
+format:
+  default: "alpaca"  # Use Alpaca format for fine-tuning
+  include_metadata: true
+  pretty_json: true
+
+# Specialized prompts for logical reasoning domains
+prompts:
+  # Summary generation for logical reasoning content
+  summary: |
+    Summarize this logical reasoning content in 3-5 sentences, focusing on:
+    1. The type of logical problems covered
+    2. Key solving strategies mentioned
+    3. Important concepts and principles
+    
+  # QA pair generation optimized for logical reasoning
+  qa_generation: |
+    Create {num_pairs} high-quality logical reasoning question-answer pairs from this educational content.
+    
+    Focus on problems that require:
+    1. Step-by-step logical deduction
+    2. Testing assumptions and eliminating contradictions
+    3. Clear reasoning explanations
+    4. Progressive difficulty (basic → intermediate → advanced)
+    
+    Domain Guidelines:
+    - Knights & Knaves: Focus on truth-teller/liar logic, contradiction testing
+    - Seating Arrangements: Focus on constraint satisfaction, systematic placement
+    - Blood Relations: Focus on family tree deduction, relationship mapping
+    
+    Return ONLY valid JSON in this exact format:
+    [
+      {{
+        "question": "Clear, specific logical reasoning question requiring step-by-step thinking?",
+        "answer": "Complete step-by-step solution showing the reasoning process, testing assumptions, and reaching the final answer.",
+        "difficulty": "basic",
+        "domain": "knights_knaves"
+      }},
+      {{
+        "question": "Another logical reasoning question with different complexity?",
+        "answer": "Detailed answer showing each deduction step, how contradictions are resolved, and verification of the solution.",
+        "difficulty": "intermediate", 
+        "domain": "seating"
+      }}
+    ]
+    
+    Text:
+    {text}
+  
+  # Chain of Thought generation for complex logical reasoning
+  cot_generation: |
+    Create {num_pairs} complex logical reasoning problems with detailed chain-of-thought solutions from this content.
+    
+    Each problem should:
+    1. Require multiple reasoning steps and careful analysis
+    2. Show how to test different possibilities systematically
+    3. Demonstrate how to identify and resolve contradictions
+    4. Include verification that the solution satisfies all constraints
+    5. Explain the reasoning behind each step
+    
+    Chain-of-Thought Structure:
+    - Identify what is known and what needs to be found
+    - Break down the problem into manageable steps
+    - Test different cases or assumptions
+    - Show how contradictions eliminate invalid options
+    - Verify the final answer against all given conditions
+    
+    Return ONLY valid JSON:
+    [
+      {{
+        "question": "Complex multi-step logical reasoning problem that requires systematic analysis?",
+        "reasoning": "Step 1: First, let me identify what we know from the problem statement...\\nStep 2: Now I need to consider the possible cases. If we assume X is true, then...\\nStep 3: This assumption leads to a contradiction because...\\nStep 4: So X must be false. Let me try the opposite assumption...\\nStep 5: Testing this new assumption: if Y is true, then...\\nStep 6: This works! Let me verify by checking all constraints...\\nStep 7: Checking constraint 1: ✓... Checking constraint 2: ✓...",
+        "answer": "Final answer with summary: The solution is [answer] because [key insight that makes this the only valid solution].",
+        "domain": "knights_knaves"
+      }}
+    ]
+    
+    Text:
+    {text}
+  
+  # Quality rating prompt for logical reasoning content
+  qa_rating: |
+    Rate each logical reasoning question-answer pair on a scale from 1-10 based on:
+    
+    ACCURACY (0-3 points):
+    - Is the logic sound and free from errors?
+    - Are all reasoning steps valid?
+    - Is the final answer correct?
+    
+    CLARITY (0-2 points):
+    - Is the question clearly stated?
+    - Is the solution easy to follow?
+    
+    REASONING QUALITY (0-3 points):
+    - Does it show step-by-step logical deduction?
+    - Are assumptions tested properly?
+    - Are contradictions identified and resolved?
+    
+    EDUCATIONAL VALUE (0-2 points):
+    - Does it teach logical reasoning skills?
+    - Is the difficulty level appropriate?
+    
+    YOU MUST RETURN VALID JSON WITH THIS EXACT SCHEMA:
+    {{
+      "question": "Exact question text",
+      "answer": "Exact answer text", 
+      "rating": 8
+    }}
+    
+    OR FOR MULTIPLE PAIRS:
+    [
+      {{"question": "Q1", "answer": "A1", "rating": 8}},
+      {{"question": "Q2", "answer": "A2", "rating": 9}}
+    ]
+    
+    *** RETURN ONLY JSON - NO EXPLANATION OR MARKDOWN ***
+    
+    QA pairs to rate:
+    {pairs}

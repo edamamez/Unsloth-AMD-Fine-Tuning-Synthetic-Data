@@ -1,0 +1,10 @@
+[
+    {
+        "answer": "B",
+        "reasoning": "Roots are 4a and 3a, so b = -7a and c = 12a². Therefore, b² + c = 49a² + 12a² = 61a². Only 549 = 61x9, so a² = 9 → a = ±3. Valid integer value. Hence, option B is correct."
+    },
+    {
+        "answer": "A",
+        "reasoning": "Pattern alternates: 3x2=6, 6+3=9, 9x5=45, 45+7=52, 52x11=572. Primes used in order: 2,3,5,7,11. Thus, next number is 572."
+    }
+]

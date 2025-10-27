@@ -1,0 +1,4 @@
+trl==0.19.0
+wandb==0.20.1
+ipdb==0.13.13
+transformers==4.51.3

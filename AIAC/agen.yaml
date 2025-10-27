@@ -1,0 +1,6 @@
+## Example hyperparameters for answer agent ##
+max_new_tokens: 512 # Do not modify max_new_tokens, as answers are expected to be short
+temperature: 0.1
+top_p: 0.9
+repetition_penalty: 1.2
+do_sample: true

@@ -1,0 +1,26 @@
+[
+    {
+        "topic": "Quadratic Equations",
+        "question": "The quadratic equation x^2 + b*x + c = 0 has two roots 4a and 3a, where a is an integer. Which of the following is a possible value of b^2 + c?",
+        "choices": [
+            "A) 3721",
+            "B) 549",
+            "C) 427",
+            "D) 361"
+        ],
+        "answer": "B",
+        "explanation": "Sum of roots = 4a + 3a = 7a = -b. Or b = -7a; Product of roots = 4a x 3a = c. Or c = 12a². Now, b² + c = (-7a)^2 + 12a^2 = 49a^2 + 12a^2 = 61a^2.\nComparing the options..\nOption 1: 61a^2 = 3721 ⇒ a^2 = 3721 / 61 = 61, clearly a is not an integer..\nOption 2: 61a^2 = 549 ⇒ a^2 = 549 / 61 = 9, we can have a = -3 or 3 (an integer).\nOption 3: 61a^2 = 427 ⇒ a^2 = 427 / 61 = 7, clearly a is not an integer..\nOption 4: 61a^2 = 361 ⇒ a^2 = 361 / 61, clearly a is not an integer."
+    },
+    {
+        "topic":"Number Series",
+        "question": "What is the next number in the series: 3, 6, 9, 45, 52, ?",
+        "choices": [
+            "A) 572",
+            "B) 585",
+            "C) 559",
+            "D) 65"
+        ],
+        "answer": "A) 572",
+        "explanation": "The pattern alternates between multiplying by a prime and adding the next prime: 3\u00d72=6, 6+3=9, 9\u00d75=45, 45+7=52, 52\u00d711=572."
+    }
+]
